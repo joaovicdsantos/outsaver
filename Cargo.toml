@@ -2,7 +2,19 @@
 name = "outsaver"
 version = "0.1.0"
 edition = "2021"
+authors = ["João Victor joaovicdsantos@gmail.com"]
+description = "Discord bot for upload Outplayed clips to Mega.nz"
+repository = "https://github.com/joaovicdsantos/outsaver"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+async-read-progress = "0.2.0"
+indicatif = "0.17.8"
+mega = { version = "0.7.3", features = ["reqwest"] }
+regex = "1.10.4"
+reqwest = { version = "0.11.18", features = ["blocking", "json", "multipart", "stream"] }
+serenity = { version = "0.12.1", features = ["client", "gateway", "rustls_backend", "model", "collector"] }
+tempfile = "3.10.1"
+tokio = { version = "1.37.0", features = ["full"] }
+tokio-util = "0.7.10"
