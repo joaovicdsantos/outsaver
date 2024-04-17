@@ -57,4 +57,24 @@ impl Mega {
             )
             .await;
     }
+
+    pub async fn find_node_handles_by_filenames(&self, filename: Vec<String>) -> Vec<String> {
+        self.client
+            .fetch_own_nodes()
+            .await
+            .unwrap()
+            .into_iter()
+            .filter(|node| filename.contains(&node.name().to_string()))
+            .map(|node| node.handle().to_string())
+            .collect()
+    }
+
+    pub async fn move_videos(&self, source_nodes: Vec<String>, destination_node: &str) {
+        let nodes = self.client.fetch_own_nodes().await.unwrap();
+        let destination_node = nodes.get_node_by_handle(destination_node).unwrap();
+        for source_node in source_nodes {
+            let node = nodes.get_node_by_handle(&source_node).unwrap();
+            let _ = self.client.move_node(&node, &destination_node).await;
+        }
+    }
 }
