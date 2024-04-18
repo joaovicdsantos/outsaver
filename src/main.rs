@@ -79,9 +79,6 @@ impl EventHandler for Handler {
 async fn upload_medias(urls: &Vec<String>, author_nick: &str, mega: &Mega) {
     let tmp_dir = Builder::new().prefix("outplayed").tempdir().unwrap();
     let mega_node = env::var("MEGA_NODE").expect("Expected a MEGA_NODE in the environment");
-    let mega_node_temp =
-        env::var("MEGA_NODE_TEMP").expect("Expected a MEGA_NODE_TEMP in the environment");
-    let mut titles = vec![];
     for url in urls {
         let video_information = create_video_information_from_url(url).await.unwrap();
         let video_path = download_and_save_temporary_video(&video_information, &tmp_dir).await;
@@ -92,13 +89,10 @@ async fn upload_medias(urls: &Vec<String>, author_nick: &str, mega: &Mega) {
             Local::now().format("%Y%m%d%H%M%S"),
             video_information.extension
         );
-        titles.push(full_title.clone());
-        mega.upload_video(&video_path, &full_title, &mega_node_temp)
+
+        mega.upload_video(&video_path, &full_title, &mega_node)
             .await;
     }
-    // For a misterious reason, the following lines resolve the bug of "undecrypted file"
-    let new_files_handle = mega.find_node_handles_by_filenames(titles).await;
-    mega.move_videos(new_files_handle, &mega_node).await;
 }
 
 async fn create_video_information_from_url(
