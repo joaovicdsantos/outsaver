@@ -18,6 +18,15 @@ impl Mega {
         Mega { client }
     }
 
+    pub fn remove_invalid_characters(name: String) -> String {
+        let invalid_characters = vec!['"', '*', '/', ':', '<', '>', '?', '\\', '|'];
+        let mut name = name.to_string();
+        for c in invalid_characters {
+            name = name.replace(&c.to_string(), "");
+        }
+        name
+    }
+
     pub async fn login(&mut self) {
         let email = env::var("MEGA_EMAIL").expect("Expected a MEGA_EMAIL in the environment");
         let password =

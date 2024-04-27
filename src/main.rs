@@ -82,13 +82,13 @@ async fn upload_medias(urls: &Vec<String>, author_nick: &str, mega: &Mega) {
     for url in urls {
         let video_information = create_video_information_from_url(url).await.unwrap();
         let video_path = download_and_save_temporary_video(&video_information, &tmp_dir).await;
-        let full_title = format!(
-            "{} | {} | {}.{}",
+        let full_title = Mega::remove_invalid_characters(format!(
+            "{} - {} - {}.{}",
             author_nick,
-            video_information.title,
+            video_information.game,
             Local::now().format("%Y%m%d%H%M%S"),
             video_information.extension
-        );
+        ));
 
         mega.upload_video(&video_path, &full_title, &mega_node)
             .await;
@@ -102,11 +102,14 @@ async fn create_video_information_from_url(
     let document = Html::parse_document(&response);
 
     let title_selector = Selector::parse("title").unwrap();
-    let title = document
+    let page_title = document
         .select(&title_selector)
         .next()
         .unwrap()
         .inner_html();
+    let hashtag_pos = page_title.find("#").unwrap();
+    let pipe_pos = page_title.find("|").unwrap();
+    let game = page_title[hashtag_pos + 1..pipe_pos].trim().to_string();
 
     let video_selector = Selector::parse("video").unwrap();
     let mut videos = document.select(&video_selector);
@@ -122,7 +125,7 @@ async fn create_video_information_from_url(
     let video_url = video.value().attr("src").expect("Expected a video url");
 
     return Ok(VideoInformation {
-        title,
+        game,
         url: video_url.to_string(),
         extension: video_url.split('.').last().unwrap().to_string(),
     });
@@ -170,7 +173,7 @@ async fn main() {
 }
 
 struct VideoInformation {
-    title: String,
+    game: String,
     url: String,
     extension: String,
 }
